@@ -16,6 +16,10 @@ const getListContacts = async (req, res) => {
 const getContactById = async (req, res) => {
   const { contactId } = req.params;
   const result = await Contact.findById(contactId);
+  const { _id: owner } = req.user;
+  if (owner.toString() !== result.owner.toString()) {
+    throw HttpError(403);
+  }
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -31,6 +35,11 @@ const addContact = async (req, res) => {
 const removeContactById = async (req, res) => {
   const { contactId } = req.params;
   const result = await Contact.findByIdAndRemove(contactId);
+  const { _id: owner } = req.user;
+  if (owner.toString() !== result.owner.toString()) {
+    throw HttpError(403);
+  }
+
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -42,6 +51,11 @@ const updateById = async (req, res) => {
   const result = await Contact.findByIdAndUpdate(contactId, req.body, {
     new: true,
   });
+  const { _id: owner } = req.user;
+  if (owner.toString() !== result.owner.toString()) {
+    throw HttpError(403);
+  }
+
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -56,6 +70,10 @@ const updateStatusContact = async (req, res) => {
   const result = await Contact.findByIdAndUpdate(contactId, req.body, {
     new: true,
   });
+  const { _id: owner } = req.user;
+  if (owner.toString() !== result.owner.toString()) {
+    throw HttpError(403);
+  }
   if (!result) {
     throw HttpError(404, "Not found");
   }
