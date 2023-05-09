@@ -15,11 +15,13 @@ const getListContacts = async (req, res) => {
 
 const getContactById = async (req, res) => {
   const { contactId } = req.params;
-  const result = await Contact.findById(contactId);
   const { _id: owner } = req.user;
-  if (owner.toString() !== result.owner.toString()) {
-    throw HttpError(403);
-  }
+  const result = await Contact.findOneAndUpdate(
+    { _id: contactId, owner: owner },
+    {
+      overwrite: false,
+    }
+  );
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -34,12 +36,11 @@ const addContact = async (req, res) => {
 
 const removeContactById = async (req, res) => {
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndRemove(contactId);
   const { _id: owner } = req.user;
-  if (owner.toString() !== result.owner.toString()) {
-    throw HttpError(403);
-  }
-
+  const result = await Contact.findOneAndRemove({
+    _id: contactId,
+    owner: owner,
+  });
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -48,14 +49,14 @@ const removeContactById = async (req, res) => {
 
 const updateById = async (req, res) => {
   const { contactId } = req.params;
-  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
-    new: true,
-  });
   const { _id: owner } = req.user;
-  if (owner.toString() !== result.owner.toString()) {
-    throw HttpError(403);
-  }
-
+  const result = await Contact.findOneAndUpdate(
+    { _id: contactId, owner: owner },
+    req.body,
+    {
+      new: true,
+    }
+  );
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -64,16 +65,17 @@ const updateById = async (req, res) => {
 
 const updateStatusContact = async (req, res) => {
   const { contactId } = req.params;
+  const { _id: owner } = req.user;
   if (!req.body) {
     throw HttpError(400, "missing field favorite");
   }
-  const result = await Contact.findByIdAndUpdate(contactId, req.body, {
-    new: true,
-  });
-  const { _id: owner } = req.user;
-  if (owner.toString() !== result.owner.toString()) {
-    throw HttpError(403);
-  }
+  const result = await Contact.findOneAndUpdate(
+    { _id: contactId, owner: owner },
+    req.body,
+    {
+      new: true,
+    }
+  );
   if (!result) {
     throw HttpError(404, "Not found");
   }
