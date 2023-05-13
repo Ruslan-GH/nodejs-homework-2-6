@@ -1,4 +1,5 @@
 const Contact = require("../models/contact");
+const fs = require("fs/promises");
 
 const { HttpError, ctrlWrapper } = require("../helpers");
 
@@ -29,6 +30,7 @@ const getContactById = async (req, res) => {
 };
 
 const addContact = async (req, res) => {
+  await fs.rename("../temp/tree.jpg", "../public/avatars/tree.jpg");
   const { _id: owner } = req.user;
   const result = await Contact.create({ ...req.body, owner });
   res.status(201).json(result);
